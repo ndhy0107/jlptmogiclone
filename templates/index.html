@@ -277,7 +277,6 @@
             background: #5a6268;
         }
 
-        /* Kanji section - NHỎ HƠN, Ở DƯỚI CÙNG */
         .kanji-section {
             margin-top: 20px;
             padding: 8px 10px;
@@ -325,7 +324,6 @@
             color: white;
         }
 
-        /* Modal cho giải thích */
         .modal {
             display: none;
             position: fixed;
@@ -483,7 +481,7 @@
             transform: scale(0.96);
         }
 
-        /* Popup ảnh Kanji */
+        /* Popup ảnh Kanji - CAO HƠN, zoom dưới ảnh */
         .image-modal {
             display: none;
             position: fixed;
@@ -499,35 +497,98 @@
         }
 
         .image-modal-content {
-            max-width: 90%;
-            max-height: 90%;
+            max-width: 92%;
+            max-height: 92%;
             background: white;
-            border-radius: 16px;
-            padding: 16px;
-            text-align: center;
-            position: relative;
+            border-radius: 20px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+            cursor: default;
         }
 
-        .image-modal-content img {
+        .image-wrapper {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            max-height: 65vh;
+        }
+
+        .image-wrapper img {
             max-width: 100%;
-            max-height: 70vh;
-            border-radius: 8px;
+            max-height: 100%;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+            cursor: zoom-in;
+            display: block;
+            margin: 0 auto;
         }
 
         .image-modal-close {
             position: absolute;
-            top: 8px;
+            top: 10px;
             right: 16px;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            color: #666;
-            transition: color 0.2s;
+            color: #999;
+            background: rgba(255,255,255,0.9);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
-        .image-modal-close:hover {
+        .image-modal-close:active {
+            background: white;
             color: #000;
+        }
+
+        .zoom-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:active {
+            transform: scale(0.95);
+            background: #5a67d8;
+        }
+
+        .zoom-reset {
+            background: #6c757d;
+            font-size: 16px;
+        }
+
+        .zoom-reset:active {
+            background: #5a6268;
         }
 
         .toast {
@@ -585,6 +646,15 @@
                 height: 28px;
                 font-size: 14px;
             }
+            .zoom-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .image-wrapper {
+                min-height: 250px;
+                max-height: 55vh;
+            }
         }
     </style>
 </head>
@@ -627,7 +697,6 @@
                 
                 <div class="options" id="optionsList"></div>
 
-                <!-- Kanji section - ĐẶT Ở DƯỚI CÙNG, SAU ĐÁP ÁN -->
                 <div class="kanji-section" id="kanjiSection" style="display: none;">
                     <div class="kanji-title">
                         📖 Kanji trong câu:
@@ -667,7 +736,14 @@
     <div id="kanjiImageModal" class="image-modal" onclick="closeKanjiImageModal()">
         <div class="image-modal-content" onclick="event.stopPropagation()">
             <span class="image-modal-close" onclick="closeKanjiImageModal()">&times;</span>
-            <img id="kanjiImage" src="" alt="Kanji image">
+            <div class="image-wrapper" id="imageWrapper">
+                <img id="kanjiImage" src="" alt="Kanji image">
+            </div>
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomImage('out')">−</button>
+                <button class="zoom-btn zoom-reset" onclick="resetZoom()">⟳</button>
+                <button class="zoom-btn" onclick="zoomImage('in')">+</button>
+            </div>
         </div>
     </div>
 
@@ -679,6 +755,7 @@
         let totalQuestions = 0;
         let selectedCorrectAnswer = '';
         let currentReviewLevel = 0;
+        let currentZoom = 1;
 
         async function copyToClipboard(text, successMessage = '✅ Đã sao chép!') {
             if (navigator.clipboard && window.isSecureContext) {
@@ -813,28 +890,105 @@
             kanjiList.innerHTML = kanjiHtml;
         }
 
-        function openKanjiImage(kanji) {
-            const modal = document.getElementById('kanjiImageModal');
+        function zoomImage(direction) {
             const img = document.getElementById('kanjiImage');
-            const imageUrl = `https://raw.githubusercontent.com/ndhy0107/2136kanji/main/images/${kanji}.jpg`;
+            if (!img) return;
             
-            img.src = imageUrl;
-            img.alt = `Kanji: ${kanji}`;
-            modal.style.display = 'flex';
+            if (direction === 'in') {
+                currentZoom = Math.min(currentZoom + 0.25, 4);
+            } else if (direction === 'out') {
+                currentZoom = Math.max(currentZoom - 0.25, 0.5);
+            }
+            img.style.transform = `scale(${currentZoom})`;
             
-            img.onerror = function() {
-                // const svgDataUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E⚠️ ${kanji}%3C/text%3E%3C/svg%3E`;
-                // img.src = svgDataUrl;
-                // img.alt = `Không tìm thấy ảnh cho chữ: ${kanji}`;
-                // showToast(`⚠️ Không tìm thấy ảnh cho chữ: ${kanji}`, 2000);
-            };
+            // Giữ vị trí scroll khi zoom
+            const wrapper = document.getElementById('imageWrapper');
+            if (wrapper && direction === 'in') {
+                setTimeout(() => {
+                    const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+                    if (wrapper.scrollLeft > maxScrollLeft) {
+                        wrapper.scrollLeft = maxScrollLeft;
+                    }
+                }, 50);
+            }
         }
+
+        function resetZoom() {
+            currentZoom = 1;
+            const img = document.getElementById('kanjiImage');
+            const wrapper = document.getElementById('imageWrapper');
+            if (img) img.style.transform = 'scale(1)';
+            if (wrapper) wrapper.scrollLeft = 0;
+            showToast('⟳ Đã reset kích thước và vị trí', 1000);
+        }
+
+        function openKanjiImage(kanji) {
+    const modal = document.getElementById('kanjiImageModal');
+    const img = document.getElementById('kanjiImage');
+    const wrapper = document.getElementById('imageWrapper');
+    const imageUrl = `https://raw.githubusercontent.com/ndhy0107/2136kanji/main/images/${kanji}.jpg`;
+    
+    // Reset trạng thái trước khi load ảnh mới
+    img.style.transform = 'scale(1)';
+    currentZoom = 1;
+    if (wrapper) wrapper.scrollLeft = 0;
+    
+    img.src = imageUrl;
+    img.alt = `Kanji: ${kanji}`;
+    modal.style.display = 'flex';
+    
+    // Xử lý khi ảnh load xong
+    img.onload = function() {
+        // Zoom 3 lần
+        currentZoom = 1.7;
+        img.style.transform = `scale(${currentZoom})`;
+        
+        // Đợi lâu hơn để zoom hoàn tất và DOM cập nhật
+        setTimeout(() => {
+            if (wrapper) {
+                // Cuộn sang phải hết cỡ nhiều lần để đảm bảo
+                const scrollToEnd = () => {
+                    const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+                    wrapper.scrollLeft = maxScrollLeft;
+                    // Log để debug (có thể xóa sau)
+                    console.log('Scrolled to:', wrapper.scrollLeft, 'Max:', maxScrollLeft);
+                };
+                
+                scrollToEnd();
+                // Scroll thêm lần nữa sau 50ms để chắc chắn
+                setTimeout(scrollToEnd, 50);
+                setTimeout(scrollToEnd, 150);
+            }
+        }, 200);
+    };
+    
+    img.onerror = function() {
+        const svgDataUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E⚠️ ${kanji}%3C/text%3E%3C/svg%3E`;
+        img.src = svgDataUrl;
+        img.alt = `Không tìm thấy ảnh cho chữ: ${kanji}`;
+        showToast(`⚠️ Không tìm thấy ảnh cho chữ: ${kanji}`, 2000);
+        // Vẫn cố gắng zoom cho ảnh lỗi
+        setTimeout(() => {
+            currentZoom = 1.8;
+            img.style.transform = `scale(${currentZoom})`;
+            setTimeout(() => {
+                if (wrapper) {
+                    const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+                    wrapper.scrollLeft = maxScrollLeft;
+                }
+            }, 200);
+        }, 50);
+    };
+}
 
         function closeKanjiImageModal() {
             const modal = document.getElementById('kanjiImageModal');
             modal.style.display = 'none';
             const img = document.getElementById('kanjiImage');
+            const wrapper = document.getElementById('imageWrapper');
             img.src = '';
+            if (wrapper) wrapper.scrollLeft = 0;
+            resetZoom();
         }
 
         function selectAnswer(optionNumber) {
@@ -1025,7 +1179,6 @@
             
             document.getElementById('optionsList').innerHTML = optionsHtml;
             
-            // Hiển thị Kanji sau đáp án
             displayKanji(q.kanji);
             
             const explainBtn = document.getElementById('explainBtn');
@@ -1068,6 +1221,21 @@
             } catch (error) {
                 document.getElementById('questionText').textContent = 'Lỗi tải data';
             }
+        }
+
+        // Lăn chuột zoom ảnh
+        const imageModal = document.getElementById('kanjiImageModal');
+        if (imageModal) {
+            imageModal.addEventListener('wheel', function(e) {
+                if (imageModal.style.display === 'flex') {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        zoomImage('in');
+                    } else {
+                        zoomImage('out');
+                    }
+                }
+            });
         }
 
         document.getElementById('explanationModal').addEventListener('click', (e) => {
