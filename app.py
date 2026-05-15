@@ -1,35 +1,41 @@
 from flask import Flask, render_template, jsonify, request
 import json
-import socket
+import os
 import random
 
 app = Flask(__name__)
 
-# Đọc dữ liệu từ file JSON
+# ===== CẤU HÌNH ĐƯỜNG DẪN =====
+# Lấy đường dẫn tuyệt đối đến thư mục hiện tại
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(BASE_DIR, 'n2_all_exams.json')
+
+# ===== HÀM ĐỌC/GHI FILE JSON =====
 def load_exam_data():
+    """Đọc dữ liệu từ file JSON"""
     try:
-        with open('n2_all_exams.json', 'r', encoding='utf-8') as f:
+        with open(JSON_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
         return data
     except FileNotFoundError:
-        print("❌ Không tìm thấy file n2_all_exams.json")
+        print(f"❌ Không tìm thấy file: {JSON_FILE}")
         return []
     except Exception as e:
         print(f"❌ Lỗi đọc file: {e}")
         return []
 
-# Lưu dữ liệu vào file JSON
 def save_exam_data(data):
+    """Lưu dữ liệu vào file JSON"""
     try:
-        with open('n2_all_exams.json', 'w', encoding='utf-8') as f:
+        with open(JSON_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
     except Exception as e:
         print(f"❌ Lỗi lưu file: {e}")
         return False
 
-# Lấy tất cả câu hỏi từ các đề
 def get_all_questions():
+    """Lấy tất cả câu hỏi từ các đề"""
     exam_data = load_exam_data()
     all_questions = []
     
@@ -38,6 +44,12 @@ def get_all_questions():
             # Thêm countreviewed nếu chưa có
             if 'countreviewed' not in question:
                 question['countreviewed'] = 0
+            # Thêm correct_answer nếu chưa có
+            if 'correct_answer' not in question:
+                question['correct_answer'] = ''
+            # Thêm explanation nếu chưa có
+            if 'explanation' not in question:
+                question['explanation'] = ''
             
             all_questions.append({
                 'de_id': exam.get('de_id'),
@@ -48,27 +60,21 @@ def get_all_questions():
                 'correct_answer': question.get('correct_answer', ''),
                 'countreviewed': question.get('countreviewed', 0),
                 'exam_index': exam_data.index(exam),
-                'question_index': idx
+                'question_index': idx,
+                'kanji': question.get('kanji', ''), 
             })
     
     return all_questions, exam_data
 
-def get_local_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except:
-        return "127.0.0.1"
-
+# ===== API ROUTES =====
 @app.route('/')
 def index():
+    """Trang chủ"""
     return render_template('index.html')
 
 @app.route('/api/questions')
 def get_questions():
+    """API lấy danh sách câu hỏi"""
     questions, _ = get_all_questions()
     return jsonify({
         'total': len(questions),
@@ -77,6 +83,7 @@ def get_questions():
 
 @app.route('/api/save-explanation', methods=['POST'])
 def save_explanation():
+    """API lưu giải thích và đáp án đúng cho câu hỏi"""
     try:
         data = request.json
         question_index = data.get('question_index')
@@ -132,28 +139,21 @@ def save_review():
 
 @app.route('/api/next-question', methods=['POST'])
 def get_next_question():
-    """Lấy câu hỏi tiếp theo dựa trên priority"""
+    """Lấy câu hỏi tiếp theo dựa trên priority (ưu tiên câu có countreviewed thấp)"""
     try:
-        data = request.json
-        current_index = data.get('current_index', 0)
-        mode = data.get('mode', 'random')  # 'random' or 'sequential'
-        
         questions, _ = get_all_questions()
         
         if not questions:
             return jsonify({'success': False, 'message': 'Không có câu hỏi'})
         
-        if mode == 'random':
-            # Lọc các câu có countreviewed < 3 (ưu tiên ôn tập)
-            low_review = [i for i, q in enumerate(questions) if q['countreviewed'] < 3]
-            if low_review:
-                next_idx = random.choice(low_review)
-            else:
-                # Nếu tất cả đã review >= 3, chọn random toàn bộ
-                next_idx = random.randint(0, len(questions) - 1)
+        # Lọc các câu có countreviewed < 3 (ưu tiên ôn tập)
+        low_review = [i for i, q in enumerate(questions) if q['countreviewed'] < 3]
+        
+        if low_review:
+            next_idx = random.choice(low_review)
         else:
-            # Chế độ tuần tự
-            next_idx = (current_index + 1) % len(questions)
+            # Nếu tất cả đã review >= 3, chọn random toàn bộ
+            next_idx = random.randint(0, len(questions) - 1)
         
         return jsonify({
             'success': True,
@@ -162,13 +162,10 @@ def get_next_question():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+# ===== CHẠY SERVER =====
 if __name__ == '__main__':
-    local_ip = get_local_ip()
-    print("="*50)
     print("🚀 Khởi động Flask server...")
+    print(f"📍 Đường dẫn file JSON: {JSON_FILE}")
+    print(f"📊 Tổng số câu hỏi: {len(get_all_questions()[0])}")
     print("="*50)
-    print(f"📍 Truy cập từ MÁY TÍNH: http://localhost:8080")
-    print(f"📍 Truy cập từ ĐIỆN THOẠI: http://{local_ip}:8080")
-    print("="*50)
-    
-    app.run(debug=True, host='0.0.0.0', port=8080, threaded=True)
+    app.run(host="0.0.0.0", port=8080)

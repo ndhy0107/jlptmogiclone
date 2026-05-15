@@ -1,934 +1,1087 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>JLPT MOGI - Học N2</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 8px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      padding: 8px 12px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .header h1 {
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .stats {
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 11px;
-    }
-
-    .nav-controls {
-      background: white;
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .question-counter {
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-      background: #f0f0f0;
-      padding: 6px 14px;
-      border-radius: 25px;
-    }
-
-    .nav-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 25px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      min-width: 110px;
-    }
-
-    .nav-btn:active {
-      transform: scale(0.96);
-      background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
-    }
-
-    .question-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .question-header {
-      background: #f8f9fa;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      border-bottom: 1px solid #eee;
-    }
-
-    .de-info {
-      font-size: 12px;
-      font-weight: 600;
-      color: #667eea;
-      background: #e8eaff;
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
-
-    .header-buttons {
-      display: flex;
-      gap: 6px;
-    }
-
-    .copy-btn,
-    .explain-btn {
-      border: none;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .copy-btn {
-      background: #28a745;
-      color: white;
-    }
-
-    .copy-btn:active {
-      background: #218838;
-    }
-
-    .explain-btn {
-      background: #ffc107;
-      color: #333;
-    }
-
-    .explain-btn:active {
-      background: #e0a800;
-    }
-
-    .explain-btn.has-correct {
-      background: #28a745;
-      color: white;
-    }
-
-    .question-body {
-      padding: 16px;
-    }
-
-    /* CÂU HỎI - TĂNG 20% (từ 17px lên 20.4px) */
-    .question-text {
-      font-size: 20.4px;
-      font-weight: 600;
-      color: #222;
-      line-height: 1.5;
-      padding: 14px;
-      background: #f8f9fa;
-      border-radius: 12px;
-      border-left: 4px solid #764ba2;
-      margin-bottom: 16px;
-    }
-
-    /* Review buttons */
-    .review-section {
-      margin-bottom: 16px;
-      padding: 8px 0;
-      border-top: 1px solid #eee;
-      border-bottom: 1px solid #eee;
-    }
-
-    .review-title {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .review-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .review-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-      background: white;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .review-btn:active {
-      transform: scale(0.95);
-    }
-
-    .review-btn.active {
-      background: #28a745;
-      border-color: #28a745;
-      color: white;
-    }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      /* giảm từ 12px xuống 8px */
-    }
-
-    .option {
-      display: flex;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      /* giảm từ 12px xuống 10px */
-      padding: 8px 12px;
-      /* giảm từ 12px 14px xuống 8px 12px */
-      background: #fafafa;
-      border-radius: 12px;
-      border: 2px solid transparent;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-
-    .option:active {
-      transform: scale(0.99);
-    }
-
-    .option.selected-correct {
-      background: #d4edda;
-      border-color: #28a745;
-    }
-
-    /* SỐ THỨ TỰ ĐÁP ÁN - TĂNG 20% */
-    .option-number {
-      width: 34px;
-      height: 34px;
-      background: #667eea;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 15.6px;
-      flex-shrink: 0;
-      transition: background 0.2s;
-    }
-
-    .option.selected-correct .option-number {
-      background: #28a745;
-    }
-
-    /* NỘI DUNG ĐÁP ÁN - TĂNG 20% (từ 14px lên 16.8px) */
-    .option-text {
-      flex: 1;
-      font-size: 16.8px;
-      color: #444;
-      line-height: 1.4;
-    }
-
-    .option-copy-btn {
-      background: #6c757d;
-      border: none;
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      cursor: pointer;
-      pointer-events: auto;
-    }
-
-    .option-copy-btn:active {
-      background: #5a6268;
-    }
-
-    /* Popup */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 85vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal-header {
-      padding: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .modal-body {
-      padding: 16px;
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .explanation-textarea {
-      width: 100%;
-      min-height: 200px;
-      padding: 12px;
-      font-size: 14px;
-      line-height: 1.5;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-family: inherit;
-      resize: vertical;
-      margin-bottom: 16px;
-    }
-
-    .explanation-textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .correct-answer-section {
-      margin-top: 8px;
-      padding-top: 12px;
-      border-top: 1px solid #eee;
-    }
-
-    .correct-answer-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .correct-options {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .correct-option-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: #f8f9fa;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid #e0e0e0;
-      flex: 0 0 auto;
-    }
-
-    .correct-option-item.selected {
-      background: #d4edda;
-      border-color: #28a745;
-    }
-
-    .correct-option-number {
-      width: 24px;
-      height: 24px;
-      background: #667eea;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    .correct-option-item.selected .correct-option-number {
-      background: #28a745;
-    }
-
-    .correct-option-text {
-      font-size: 12px;
-      color: #555;
-      max-width: 200px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .modal-footer {
-      padding: 16px;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      border-top: 1px solid #eee;
-      flex-shrink: 0;
-    }
-
-    .modal-btn {
-      padding: 8px 20px;
-      border-radius: 25px;
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .modal-btn-save {
-      background: #28a745;
-      color: white;
-    }
-
-    .modal-btn-close {
-      background: #6c757d;
-      color: white;
-    }
-
-    .modal-btn:active {
-      transform: scale(0.96);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #28a745;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 40px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: transform 0.2s ease;
-      z-index: 1100;
-      white-space: nowrap;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 5px;
-      }
-
-      .nav-btn {
-        padding: 8px 16px;
-        min-width: 100px;
-        font-size: 13px;
-      }
-
-      .question-counter {
-        font-size: 13px;
-        padding: 5px 12px;
-      }
-
-      .question-text {
-        font-size: 18px;
-      }
-
-      .option-text {
-        font-size: 15px;
-      }
-
-      .option-number {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-      }
-
-      .review-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 13px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>JLPT MOGI - Học N2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 8px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stats {
+            color: rgba(255,255,255,0.85);
+            font-size: 11px;
+        }
+
+        .nav-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .question-counter {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            background: #f0f0f0;
+            padding: 6px 14px;
+            border-radius: 25px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 110px;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.96);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-header {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #eee;
+        }
+
+        .de-info {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            background: #e8eaff;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .copy-btn, .explain-btn {
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .copy-btn:active {
+            background: #218838;
+        }
+
+        .explain-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .explain-btn:active {
+            background: #e0a800;
+        }
+
+        .explain-btn.has-correct {
+            background: #28a745;
+            color: white;
+        }
+
+        .question-body {
+            padding: 16px;
+        }
+
+        .question-text {
+            font-size: 20.4px;
+            font-weight: 600;
+            color: #222;
+            line-height: 1.5;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #764ba2;
+            margin-bottom: 16px;
+        }
+
+        .review-section {
+            margin-bottom: 16px;
+            padding: 8px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .review-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .review-btn:active {
+            transform: scale(0.95);
+        }
+
+        .review-btn.active {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .option:active {
+            transform: scale(0.99);
+        }
+
+        .option.selected-correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option-number {
+            width: 34px;
+            height: 34px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15.6px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .option.selected-correct .option-number {
+            background: #28a745;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 16.8px;
+            color: #444;
+            line-height: 1.4;
+        }
+
+        .option-copy-btn {
+            background: #6c757d;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .option-copy-btn:active {
+            background: #5a6268;
+        }
+
+        /* Kanji section - NHỎ HƠN, Ở DƯỚI CÙNG */
+        .kanji-section {
+            margin-top: 20px;
+            padding: 8px 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .kanji-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kanji-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .kanji-item {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 1.5px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .kanji-item:active {
+            transform: scale(0.95);
+            background: #667eea;
+            color: white;
+        }
+
+        /* Modal cho giải thích */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .modal-body {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .explanation-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 16px;
+        }
+
+        .explanation-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .correct-answer-section {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .correct-answer-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .correct-options {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .correct-option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e0e0e0;
+            flex: 0 0 auto;
+        }
+
+        .correct-option-item.selected {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .correct-option-number {
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .correct-option-item.selected .correct-option-number {
+            background: #28a745;
+        }
+
+        .correct-option-text {
+            font-size: 12px;
+            color: #555;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modal-footer {
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .modal-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .modal-btn-close {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Popup ảnh Kanji */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 8px;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .image-modal-close:hover {
+            color: #000;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            z-index: 1100;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            .nav-btn {
+                padding: 8px 16px;
+                min-width: 100px;
+                font-size: 13px;
+            }
+            .question-counter {
+                font-size: 13px;
+                padding: 5px 12px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .option-text {
+                font-size: 15px;
+            }
+            .option-number {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            .review-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 13px;
+            }
+            .kanji-item {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>📚 JLPT N2</h1>
-      <div class="stats" id="stats">2400 câu | 80 đề</div>
-    </div>
-
-    <!-- Navigation siêu gọn: chỉ còn counter và nút Câu tiếp -->
-    <div class="nav-controls">
-      <div class="question-counter" id="counter">1 / 2400</div>
-      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">🎲 Câu tiếp</button>
-    </div>
-
-    <div class="question-card">
-      <div class="question-header">
-        <span class="de-info" id="deInfo">de_01</span>
-        <div class="header-buttons">
-          <button class="explain-btn" id="explainBtn" onclick="openExplanationModal()">📖 Giải thích</button>
-          <button class="copy-btn" onclick="copyAllContent()">📋 Copy all</button>
-        </div>
-      </div>
-      <div class="question-body">
-        <div class="question-text" id="questionText">Đang tải...</div>
-
-        <!-- Review section -->
-        <div class="review-section">
-          <div class="review-title">
-            📊 Mức độ đã học:
-            <span id="reviewValue" style="font-weight: bold; color: #28a745;">0</span>/5
-          </div>
-          <div class="review-buttons">
-            <button class="review-btn" data-level="1" onclick="setReviewLevel(1)">1</button>
-            <button class="review-btn" data-level="2" onclick="setReviewLevel(2)">2</button>
-            <button class="review-btn" data-level="3" onclick="setReviewLevel(3)">3</button>
-            <button class="review-btn" data-level="4" onclick="setReviewLevel(4)">4</button>
-            <button class="review-btn" data-level="5" onclick="setReviewLevel(5)">5</button>
-          </div>
+    <div class="container">
+        <div class="header">
+            <h1>📚 JLPT N2</h1>
+            <div class="stats" id="stats">2400 câu | 80 đề</div>
         </div>
 
-        <div class="options" id="optionsList"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Popup giải thích -->
-  <div id="explanationModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        📝 Giải thích & Đáp án đúng
-      </div>
-      <div class="modal-body">
-        <textarea id="explanationText" class="explanation-textarea"
-          placeholder="Nhập giải thích cho câu hỏi này..."></textarea>
-
-        <div class="correct-answer-section">
-          <div class="correct-answer-title">
-            ✅ Đáp án đúng
-            <span>(chọn 1)</span>
-          </div>
-          <div class="correct-options" id="correctOptionsList"></div>
+        <div class="nav-controls">
+            <div class="question-counter" id="counter">1 / 2400</div>
+            <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">🎲 Câu tiếp</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn modal-btn-save" onclick="saveExplanation()">💾 Lưu</button>
-        <button class="modal-btn modal-btn-close" onclick="closeExplanationModal()">❌ Đóng</button>
-      </div>
+
+        <div class="question-card">
+            <div class="question-header">
+                <span class="de-info" id="deInfo">de_01</span>
+                <div class="header-buttons">
+                    <button class="explain-btn" id="explainBtn" onclick="openExplanationModal()">📖 Giải thích</button>
+                    <button class="copy-btn" onclick="copyAllContent()">📋 Copy all</button>
+                </div>
+            </div>
+            <div class="question-body">
+                <div class="question-text" id="questionText">Đang tải...</div>
+                
+                <div class="review-section">
+                    <div class="review-title">
+                        📊 Mức độ đã học:
+                        <span id="reviewValue" style="font-weight: bold; color: #28a745;">0</span>/5
+                    </div>
+                    <div class="review-buttons">
+                        <button class="review-btn" data-level="1" onclick="setReviewLevel(1)">1</button>
+                        <button class="review-btn" data-level="2" onclick="setReviewLevel(2)">2</button>
+                        <button class="review-btn" data-level="3" onclick="setReviewLevel(3)">3</button>
+                        <button class="review-btn" data-level="4" onclick="setReviewLevel(4)">4</button>
+                        <button class="review-btn" data-level="5" onclick="setReviewLevel(5)">5</button>
+                    </div>
+                </div>
+                
+                <div class="options" id="optionsList"></div>
+
+                <!-- Kanji section - ĐẶT Ở DƯỚI CÙNG, SAU ĐÁP ÁN -->
+                <div class="kanji-section" id="kanjiSection" style="display: none;">
+                    <div class="kanji-title">
+                        📖 Kanji trong câu:
+                        <span style="font-size: 10px; font-weight: normal;">(bấm vào để xem ảnh)</span>
+                    </div>
+                    <div class="kanji-list" id="kanjiList"></div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="toast" class="toast">✅ Đã sao chép!</div>
+    <!-- Popup giải thích -->
+    <div id="explanationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                📝 Giải thích & Đáp án đúng
+            </div>
+            <div class="modal-body">
+                <textarea id="explanationText" class="explanation-textarea" placeholder="Nhập giải thích cho câu hỏi này..."></textarea>
+                
+                <div class="correct-answer-section">
+                    <div class="correct-answer-title">
+                        ✅ Đáp án đúng
+                        <span>(chọn 1)</span>
+                    </div>
+                    <div class="correct-options" id="correctOptionsList"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-save" onclick="saveExplanation()">💾 Lưu</button>
+                <button class="modal-btn modal-btn-close" onclick="closeExplanationModal()">❌ Đóng</button>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    let questions = [];
-    let currentIndex = 0;
-    let totalQuestions = 0;
-    let selectedCorrectAnswer = '';
-    let currentReviewLevel = 0;
+    <!-- Popup ảnh Kanji -->
+    <div id="kanjiImageModal" class="image-modal" onclick="closeKanjiImageModal()">
+        <div class="image-modal-content" onclick="event.stopPropagation()">
+            <span class="image-modal-close" onclick="closeKanjiImageModal()">&times;</span>
+            <img id="kanjiImage" src="" alt="Kanji image">
+        </div>
+    </div>
 
-    async function copyToClipboard(text, successMessage = '✅ Đã sao chép!') {
-      if (navigator.clipboard && window.isSecureContext) {
-        try {
-          await navigator.clipboard.writeText(text);
-          showToast(successMessage);
-          return true;
-        } catch (err) { }
-      }
-      try {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.top = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        const success = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        if (success) {
-          showToast(successMessage);
-          return true;
+    <div id="toast" class="toast">✅ Đã sao chép!</div>
+
+    <script>
+        let questions = [];
+        let currentIndex = 0;
+        let totalQuestions = 0;
+        let selectedCorrectAnswer = '';
+        let currentReviewLevel = 0;
+
+        async function copyToClipboard(text, successMessage = '✅ Đã sao chép!') {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast(successMessage);
+                    return true;
+                } catch (err) {}
+            }
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (success) {
+                    showToast(successMessage);
+                    return true;
+                }
+            } catch (err) {}
+            showToast('⚠️ Vui lòng tự copy', 2000);
+            return false;
         }
-      } catch (err) { }
-      showToast('⚠️ Vui lòng tự copy', 2000);
-      return false;
-    }
 
-    function showToast(message, duration = 1500) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), duration);
-    }
-
-    function copyAllContent() {
-      if (!questions[currentIndex]) return;
-      const q = questions[currentIndex];
-      let content = `【${q.de_id}】${q.question}\n\n`;
-      q.options.forEach(opt => {
-        content += `${opt.number}. ${opt.text}\n`;
-      });
-      if (q.explanation && q.explanation.trim() !== '') {
-        content += `\n📖 Giải thích:\n${q.explanation}`;
-      }
-      copyToClipboard(content, '✅ Đã copy!');
-    }
-
-    function copyOption(optionNumber, optionText, event) {
-      event.stopPropagation();
-      copyToClipboard(`${optionNumber}. ${optionText}`, `✅ Copied ${optionNumber}`);
-    }
-
-    async function setReviewLevel(level) {
-      currentReviewLevel = level;
-
-      document.getElementById('reviewValue').textContent = level;
-      const btns = document.querySelectorAll('.review-btn');
-      btns.forEach(btn => {
-        const btnLevel = parseInt(btn.getAttribute('data-level'));
-        if (btnLevel === level) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
+        function showToast(message, duration = 1500) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), duration);
         }
-      });
 
-      try {
-        const response = await fetch('/api/save-review', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question_index: currentIndex,
-            countreviewed: level
-          })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          questions[currentIndex].countreviewed = level;
-          showToast(`✅ Đã lưu: ${level}/5`, 1000);
-        } else {
-          showToast('❌ Lỗi lưu review');
+        function copyAllContent() {
+            if (!questions[currentIndex]) return;
+            const q = questions[currentIndex];
+            let content = `【${q.de_id}】${q.question}\n\n`;
+            q.options.forEach(opt => {
+                content += `${opt.number}. ${opt.text}\n`;
+            });
+            if (q.explanation && q.explanation.trim() !== '') {
+                content += `\n📖 Giải thích:\n${q.explanation}`;
+            }
+            if (q.kanji && q.kanji.trim() !== '') {
+                content += `\n\n📖 Kanji: ${q.kanji}`;
+            }
+            copyToClipboard(content, '✅ Đã copy!');
         }
-      } catch (error) {
-        showToast('❌ Lỗi kết nối');
-      }
-    }
 
-    function updateReviewUI(level) {
-      currentReviewLevel = level;
-      document.getElementById('reviewValue').textContent = level;
-      const btns = document.querySelectorAll('.review-btn');
-      btns.forEach(btn => {
-        const btnLevel = parseInt(btn.getAttribute('data-level'));
-        if (btnLevel === level) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
+        function copyOption(optionNumber, optionText, event) {
+            event.stopPropagation();
+            copyToClipboard(`${optionNumber}. ${optionText}`, `✅ Copied ${optionNumber}`);
         }
-      });
-    }
 
-    function selectAnswer(optionNumber) {
-      if (!questions[currentIndex]) return;
+        async function setReviewLevel(level) {
+            currentReviewLevel = level;
+            
+            document.getElementById('reviewValue').textContent = level;
+            const btns = document.querySelectorAll('.review-btn');
+            btns.forEach(btn => {
+                const btnLevel = parseInt(btn.getAttribute('data-level'));
+                if (btnLevel === level) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            try {
+                const response = await fetch('/api/save-review', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question_index: currentIndex,
+                        countreviewed: level
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    questions[currentIndex].countreviewed = level;
+                    showToast(`✅ Đã lưu: ${level}/5`, 1000);
+                } else {
+                    showToast('❌ Lỗi lưu review');
+                }
+            } catch (error) {
+                showToast('❌ Lỗi kết nối');
+            }
+        }
 
-      const currentQuestion = questions[currentIndex];
-      const savedCorrectAnswer = currentQuestion.correct_answer;
+        function updateReviewUI(level) {
+            currentReviewLevel = level;
+            document.getElementById('reviewValue').textContent = level;
+            const btns = document.querySelectorAll('.review-btn');
+            btns.forEach(btn => {
+                const btnLevel = parseInt(btn.getAttribute('data-level'));
+                if (btnLevel === level) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
 
-      if (!savedCorrectAnswer || savedCorrectAnswer === '') {
-        showToast('⚠️ Chưa có đáp án đúng. Vào "Giải thích" để đặt đáp án!', 2000);
-        return;
-      }
+        function displayKanji(kanjiString) {
+            const kanjiSection = document.getElementById('kanjiSection');
+            const kanjiList = document.getElementById('kanjiList');
+            
+            if (!kanjiString || kanjiString.trim() === '') {
+                kanjiSection.style.display = 'none';
+                return;
+            }
+            
+            const kanjiArray = kanjiString.split(',').filter(k => k.trim() !== '');
+            
+            if (kanjiArray.length === 0) {
+                kanjiSection.style.display = 'none';
+                return;
+            }
+            
+            kanjiSection.style.display = 'block';
+            
+            const kanjiHtml = kanjiArray.map(kanji => `
+                <div class="kanji-item" onclick="openKanjiImage('${kanji}')">
+                    ${kanji}
+                </div>
+            `).join('');
+            
+            kanjiList.innerHTML = kanjiHtml;
+        }
 
-      if (optionNumber === savedCorrectAnswer) {
-        highlightSelectedAnswer(optionNumber);
-        showToast(`✅ Chính xác! Đáp án ${optionNumber} là đúng.`, 1500);
-      } else {
-        showToast(`❌ Sai rồi! Đáp án đúng là ${savedCorrectAnswer}.`, 2000);
-        clearHighlight();
-      }
-    }
+        function openKanjiImage(kanji) {
+            const modal = document.getElementById('kanjiImageModal');
+            const img = document.getElementById('kanjiImage');
+            const imageUrl = `https://raw.githubusercontent.com/ndhy0107/2136kanji/main/images/${kanji}.jpg`;
+            
+            img.src = imageUrl;
+            img.alt = `Kanji: ${kanji}`;
+            modal.style.display = 'flex';
+            
+            img.onerror = function() {
+                // const svgDataUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E⚠️ ${kanji}%3C/text%3E%3C/svg%3E`;
+                // img.src = svgDataUrl;
+                // img.alt = `Không tìm thấy ảnh cho chữ: ${kanji}`;
+                // showToast(`⚠️ Không tìm thấy ảnh cho chữ: ${kanji}`, 2000);
+            };
+        }
 
-    function clearHighlight() {
-      const allOptions = document.querySelectorAll('.option');
-      allOptions.forEach(opt => {
-        opt.classList.remove('selected-correct');
-      });
-    }
+        function closeKanjiImageModal() {
+            const modal = document.getElementById('kanjiImageModal');
+            modal.style.display = 'none';
+            const img = document.getElementById('kanjiImage');
+            img.src = '';
+        }
 
-    function highlightSelectedAnswer(selectedNumber) {
-      const allOptions = document.querySelectorAll('.option');
-      allOptions.forEach(opt => {
-        opt.classList.remove('selected-correct');
-      });
+        function selectAnswer(optionNumber) {
+            if (!questions[currentIndex]) return;
+            
+            const currentQuestion = questions[currentIndex];
+            const savedCorrectAnswer = currentQuestion.correct_answer;
+            
+            if (!savedCorrectAnswer || savedCorrectAnswer === '') {
+                showToast('⚠️ Chưa có đáp án đúng. Vào "Giải thích" để đặt đáp án!', 2000);
+                return;
+            }
+            
+            if (optionNumber === savedCorrectAnswer) {
+                highlightSelectedAnswer(optionNumber);
+                showToast(`✅ Chính xác! Đáp án ${optionNumber} là đúng.`, 1500);
+            } else {
+                showToast(`❌ Sai rồi! Đáp án đúng là ${savedCorrectAnswer}.`, 2000);
+                clearHighlight();
+            }
+        }
 
-      const targetOption = document.querySelector(`.option[data-opt-num="${selectedNumber}"]`);
-      if (targetOption) {
-        targetOption.classList.add('selected-correct');
-      }
-    }
+        function clearHighlight() {
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected-correct');
+            });
+        }
 
-    function displayCorrectOptionsInModal() {
-      if (!questions[currentIndex]) return;
-      const q = questions[currentIndex];
-      const container = document.getElementById('correctOptionsList');
+        function highlightSelectedAnswer(selectedNumber) {
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected-correct');
+            });
+            
+            const targetOption = document.querySelector(`.option[data-opt-num="${selectedNumber}"]`);
+            if (targetOption) {
+                targetOption.classList.add('selected-correct');
+            }
+        }
 
-      const optionsHtml = q.options.map(opt => `
+        function displayCorrectOptionsInModal() {
+            if (!questions[currentIndex]) return;
+            const q = questions[currentIndex];
+            const container = document.getElementById('correctOptionsList');
+            
+            const optionsHtml = q.options.map(opt => `
                 <div class="correct-option-item" onclick="selectCorrectAnswerInModal('${opt.number}')" data-opt-num="${opt.number}">
                     <div class="correct-option-number">${opt.number}</div>
                     <div class="correct-option-text">${escapeHtml(opt.text.substring(0, 30))}${opt.text.length > 30 ? '...' : ''}</div>
                 </div>
             `).join('');
-
-      container.innerHTML = optionsHtml;
-
-      if (q.correct_answer) {
-        selectedCorrectAnswer = q.correct_answer;
-        highlightSelectedAnswerInModal(q.correct_answer);
-      } else {
-        selectedCorrectAnswer = '';
-      }
-    }
-
-    function selectCorrectAnswerInModal(answerNumber) {
-      selectedCorrectAnswer = answerNumber;
-      highlightSelectedAnswerInModal(answerNumber);
-    }
-
-    function highlightSelectedAnswerInModal(answerNumber) {
-      const items = document.querySelectorAll('.correct-option-item');
-      items.forEach(item => {
-        const optNum = item.getAttribute('data-opt-num');
-        if (optNum === answerNumber) {
-          item.classList.add('selected');
-        } else {
-          item.classList.remove('selected');
+            
+            container.innerHTML = optionsHtml;
+            
+            if (q.correct_answer) {
+                selectedCorrectAnswer = q.correct_answer;
+                highlightSelectedAnswerInModal(q.correct_answer);
+            } else {
+                selectedCorrectAnswer = '';
+            }
         }
-      });
-    }
 
-    async function openExplanationModal() {
-      const modal = document.getElementById('explanationModal');
-      const textarea = document.getElementById('explanationText');
-
-      const currentExplanation = questions[currentIndex]?.explanation || '';
-      textarea.value = currentExplanation;
-
-      const currentCorrectAnswer = questions[currentIndex]?.correct_answer || '';
-      selectedCorrectAnswer = currentCorrectAnswer;
-
-      displayCorrectOptionsInModal();
-      modal.style.display = 'flex';
-    }
-
-    function closeExplanationModal() {
-      const modal = document.getElementById('explanationModal');
-      modal.style.display = 'none';
-    }
-
-    async function saveExplanation() {
-      const explanation = document.getElementById('explanationText').value;
-      const correctAnswer = selectedCorrectAnswer;
-      const questionIndex = currentIndex;
-
-      try {
-        const response = await fetch('/api/save-explanation', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question_index: questionIndex,
-            explanation: explanation,
-            correct_answer: correctAnswer
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          questions[currentIndex].explanation = explanation;
-          questions[currentIndex].correct_answer = correctAnswer;
-          showToast('✅ Đã lưu giải thích và đáp án đúng!');
-          closeExplanationModal();
-
-          const explainBtn = document.getElementById('explainBtn');
-          if (correctAnswer) {
-            explainBtn.classList.add('has-correct');
-          } else {
-            explainBtn.classList.remove('has-correct');
-          }
-
-          clearHighlight();
-        } else {
-          showToast('❌ Lỗi: ' + result.message);
+        function selectCorrectAnswerInModal(answerNumber) {
+            selectedCorrectAnswer = answerNumber;
+            highlightSelectedAnswerInModal(answerNumber);
         }
-      } catch (error) {
-        showToast('❌ Lỗi kết nối server');
-      }
-    }
 
-    async function nextQuestion() {
-      try {
-        const response = await fetch('/api/next-question', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            current_index: currentIndex,
-            mode: 'random'
-          })
-        });
-
-        const result = await response.json();
-        if (result.success && result.next_index !== undefined) {
-          currentIndex = result.next_index;
-          displayCurrentQuestion();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          showToast('🎉 Đã học hết câu hỏi!');
+        function highlightSelectedAnswerInModal(answerNumber) {
+            const items = document.querySelectorAll('.correct-option-item');
+            items.forEach(item => {
+                const optNum = item.getAttribute('data-opt-num');
+                if (optNum === answerNumber) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
         }
-      } catch (error) {
-        showToast('❌ Lỗi kết nối');
-      }
-    }
 
-    function displayCurrentQuestion() {
-      if (!questions.length) return;
-      const q = questions[currentIndex];
+        async function openExplanationModal() {
+            const modal = document.getElementById('explanationModal');
+            const textarea = document.getElementById('explanationText');
+            
+            const currentExplanation = questions[currentIndex]?.explanation || '';
+            textarea.value = currentExplanation;
+            
+            const currentCorrectAnswer = questions[currentIndex]?.correct_answer || '';
+            selectedCorrectAnswer = currentCorrectAnswer;
+            
+            displayCorrectOptionsInModal();
+            modal.style.display = 'flex';
+        }
 
-      document.getElementById('deInfo').textContent = q.de_id;
-      document.getElementById('questionText').textContent = q.question;
-      document.getElementById('counter').textContent = `${currentIndex + 1} / ${totalQuestions}`;
+        function closeExplanationModal() {
+            const modal = document.getElementById('explanationModal');
+            modal.style.display = 'none';
+        }
 
-      const uniqueDeIds = new Set(questions.map(q => q.de_id));
-      document.getElementById('stats').textContent = `${totalQuestions} câu | ${uniqueDeIds.size} đề`;
+        async function saveExplanation() {
+            const explanation = document.getElementById('explanationText').value;
+            const correctAnswer = selectedCorrectAnswer;
+            const questionIndex = currentIndex;
+            
+            try {
+                const response = await fetch('/api/save-explanation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question_index: questionIndex,
+                        explanation: explanation,
+                        correct_answer: correctAnswer
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    questions[currentIndex].explanation = explanation;
+                    questions[currentIndex].correct_answer = correctAnswer;
+                    showToast('✅ Đã lưu giải thích và đáp án đúng!');
+                    closeExplanationModal();
+                    
+                    const explainBtn = document.getElementById('explainBtn');
+                    if (correctAnswer) {
+                        explainBtn.classList.add('has-correct');
+                    } else {
+                        explainBtn.classList.remove('has-correct');
+                    }
+                    
+                    clearHighlight();
+                } else {
+                    showToast('❌ Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                showToast('❌ Lỗi kết nối server');
+            }
+        }
 
-      updateReviewUI(q.countreviewed || 0);
+        async function nextQuestion() {
+            try {
+                const response = await fetch('/api/next-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        current_index: currentIndex,
+                        mode: 'random'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success && result.next_index !== undefined) {
+                    currentIndex = result.next_index;
+                    displayCurrentQuestion();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    showToast('🎉 Đã học hết câu hỏi!');
+                }
+            } catch (error) {
+                showToast('❌ Lỗi kết nối');
+            }
+        }
 
-      const optionsHtml = q.options.map(opt => `
+        function displayCurrentQuestion() {
+            if (!questions.length) return;
+            const q = questions[currentIndex];
+            
+            document.getElementById('deInfo').textContent = q.de_id;
+            document.getElementById('questionText').textContent = q.question;
+            document.getElementById('counter').textContent = `${currentIndex + 1} / ${totalQuestions}`;
+            
+            const uniqueDeIds = new Set(questions.map(q => q.de_id));
+            document.getElementById('stats').textContent = `${totalQuestions} câu | ${uniqueDeIds.size} đề`;
+            
+            updateReviewUI(q.countreviewed || 0);
+            
+            const optionsHtml = q.options.map(opt => `
                 <div class="option" data-opt-num="${opt.number}" onclick="selectAnswer('${opt.number}')">
                     <div class="option-number">${opt.number}</div>
                     <div class="option-text">${escapeHtml(opt.text)}</div>
                     <button class="option-copy-btn" onclick="copyOption('${opt.number}', '${escapeHtml(opt.text).replace(/'/g, "\\'")}', event)">Copy</button>
                 </div>
             `).join('');
+            
+            document.getElementById('optionsList').innerHTML = optionsHtml;
+            
+            // Hiển thị Kanji sau đáp án
+            displayKanji(q.kanji);
+            
+            const explainBtn = document.getElementById('explainBtn');
+            if (q.correct_answer && q.correct_answer.trim() !== '') {
+                explainBtn.classList.add('has-correct');
+            } else {
+                explainBtn.classList.remove('has-correct');
+            }
+            
+            clearHighlight();
+        }
 
-      document.getElementById('optionsList').innerHTML = optionsHtml;
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-      const explainBtn = document.getElementById('explainBtn');
-      if (q.correct_answer && q.correct_answer.trim() !== '') {
-        explainBtn.classList.add('has-correct');
-      } else {
-        explainBtn.classList.remove('has-correct');
-      }
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                const data = await response.json();
+                questions = data.questions;
+                totalQuestions = data.total;
+                
+                let minReview = Infinity;
+                let startIndex = 0;
+                questions.forEach((q, idx) => {
+                    const review = q.countreviewed || 0;
+                    if (review < minReview) {
+                        minReview = review;
+                        startIndex = idx;
+                    }
+                });
+                
+                currentIndex = startIndex;
+                
+                if (totalQuestions > 0) displayCurrentQuestion();
+                else document.getElementById('questionText').textContent = 'Không có dữ liệu';
+            } catch (error) {
+                document.getElementById('questionText').textContent = 'Lỗi tải data';
+            }
+        }
 
-      clearHighlight();
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    async function loadQuestions() {
-      try {
-        const response = await fetch('/api/questions');
-        const data = await response.json();
-        questions = data.questions;
-        totalQuestions = data.total;
-
-        let minReview = Infinity;
-        let startIndex = 0;
-        questions.forEach((q, idx) => {
-          const review = q.countreviewed || 0;
-          if (review < minReview) {
-            minReview = review;
-            startIndex = idx;
-          }
+        document.getElementById('explanationModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('explanationModal')) {
+                closeExplanationModal();
+            }
         });
 
-        currentIndex = startIndex;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextQuestion();
+            else if (e.key === 'Escape') closeExplanationModal();
+        });
 
-        if (totalQuestions > 0) displayCurrentQuestion();
-        else document.getElementById('questionText').textContent = 'Không có dữ liệu';
-      } catch (error) {
-        document.getElementById('questionText').textContent = 'Lỗi tải data';
-      }
-    }
-
-    document.getElementById('explanationModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('explanationModal')) {
-        closeExplanationModal();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') nextQuestion();
-      else if (e.key === 'Escape') closeExplanationModal();
-    });
-
-    loadQuestions();
-  </script>
+        loadQuestions();
+    </script>
 </body>
-
 </html>
