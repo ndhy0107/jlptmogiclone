@@ -963,21 +963,21 @@
     };
     
     img.onerror = function() {
-        const svgDataUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E⚠️ ${kanji}%3C/text%3E%3C/svg%3E`;
-        img.src = svgDataUrl;
-        img.alt = `Không tìm thấy ảnh cho chữ: ${kanji}`;
-        showToast(`⚠️ Không tìm thấy ảnh cho chữ: ${kanji}`, 2000);
-        // Vẫn cố gắng zoom cho ảnh lỗi
-        setTimeout(() => {
-            currentZoom = 1.8;
-            img.style.transform = `scale(${currentZoom})`;
-            setTimeout(() => {
-                if (wrapper) {
-                    const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
-                    wrapper.scrollLeft = maxScrollLeft;
-                }
-            }, 200);
-        }, 50);
+        // const svgDataUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E⚠️ ${kanji}%3C/text%3E%3C/svg%3E`;
+        // img.src = svgDataUrl;
+        // img.alt = `Không tìm thấy ảnh cho chữ: ${kanji}`;
+        // showToast(`⚠️ Không tìm thấy ảnh cho chữ: ${kanji}`, 2000);
+        // // Vẫn cố gắng zoom cho ảnh lỗi
+        // setTimeout(() => {
+        //     currentZoom = 1.8;
+        //     img.style.transform = `scale(${currentZoom})`;
+        //     setTimeout(() => {
+        //         if (wrapper) {
+        //             const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+        //             wrapper.scrollLeft = maxScrollLeft;
+        //         }
+        //     }, 200);
+        // }, 50);
     };
 }
 
